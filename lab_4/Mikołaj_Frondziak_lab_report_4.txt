@@ -1,0 +1,79 @@
+Sprawozdanie - Laboratorium 4
+Mikołaj Frondziak
+
+1. Cel ćwiczenia
+
+Celem ćwiczenia było zastosowanie aproksymacji Czebyszewa z biblioteki GSL
+do dwóch zadanych funkcji oraz sprawdzenie wpływu stopnia wielomianu na
+dokładność aproksymacji. W zadaniu dodatkowym zbadano funkcję szybko
+oscylującą.
+
+2. Metoda
+
+Program w apr.c definiuje funkcje jako gsl_function, wyznacza rozwinięcie
+za pomocą gsl_cheb_init, a następnie ocenia je dla kilku stopni przez
+gsl_cheb_eval_n. Wartości funkcji i aproksymacji są zapisywane do plików
+tekstowych na 4001 równomiernie rozmieszczonych punktach każdego przedziału.
+Skrypt wykresy.gnuplot tworzy pliki SVG porównujące funkcję z aproksymacjami.
+
+3. Wyniki
+
+Badane funkcje i przedziały:
+- f(x) = exp(x) cos(0.5 x^2), x z [0, 3], stopnie n = 3, 10, 40.
+- f(x) = 1/(12 x^2 + 1), x z [-2, 2], stopnie n = 3, 10, 40.
+- f(x) = cos(x) + 0.05 sin(25 x), x z [0, 10], stopnie n = 40, 256.
+
+Maksymalny błąd bezwzględny |f(x) - p_n(x)| obliczony na zapisanej siatce:
+
+Funkcja                                  n       Maksymalny błąd
+exp(x) cos(0.5 x^2)                      3       4.2231
+exp(x) cos(0.5 x^2)                     10       0.00232674
+exp(x) cos(0.5 x^2)                     40       2.49e-14
+1/(12 x^2 + 1)                           3       0.642850
+1/(12 x^2 + 1)                          10       0.203369
+1/(12 x^2 + 1)                          40       0.00267809
+cos(x) + 0.05 sin(25 x)                40       0.0600207
+cos(x) + 0.05 sin(25 x)               256       4.10e-14
+
+Wyniki są błędami maksymalnymi na próbkach wykresu, a nie oszacowaniem
+globalnego błędu między próbkami.
+
+Wykres exp_cos.svg pokazuje, że dla pierwszej funkcji n = 3 nie opisuje
+dobrze jej zmienności, n = 10 daje już dobrą zgodność, a n = 40 praktycznie
+pokrywa się z funkcją. Dla funkcji wymiernej (rational.svg) błąd maleje wraz
+ze wzrostem n, ale nawet n = 40 daje widoczne odchylenie w pobliżu maksimum.
+W przypadku funkcji dodatkowej (oscillatory.svg) wielomian stopnia 40 nie
+odtwarza szybko zmieniającego się składnika sin(25 x); stopień 256 zapewnia
+zgodność z dokładnością numeryczną.
+
+4. Wnioski
+
+Większy stopień wielomianu zwykle poprawia aproksymację, ale wymagany stopień
+zależy od funkcji i jej przedziału. Składnik o dużej częstotliwości wymaga
+znacznie większej liczby składników szeregu Czebyszewa niż funkcje zmieniające
+się łagodnie. Dla praktycznego wyboru stopnia warto więc sprawdzać błąd na
+całym przedziale, a nie tylko porównywać wartości w kilku punktach.
+
+5. Uruchomienie
+
+Wymagane są biblioteka GSL, kompilator C oraz gnuplot. W katalogu lab_4:
+
+    make
+    ./apr
+    gnuplot wykresy.gnuplot
+
+Polecenie `make plots` wykonuje te kroki w jednym działaniu. Program zapisuje
+pliki exp_cos.dat, rational.dat i oscillatory.dat, a skrypt tworzy trzy pliki
+SVG.
+
+6. Bibliografia
+
+- GNU Scientific Library, rozdział Chebyshev Series:
+  https://www.gnu.org/software/gsl/doc/html/cheb.html
+- Gnuplot documentation:
+  http://www.gnuplot.info/documentation.html
+
+7. Kod
+
+Kod źródłowy programu znajduje się w apr.c, a skrypt rysujący wykresy
+w wykresy.gnuplot.
